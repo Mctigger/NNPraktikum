@@ -7,9 +7,12 @@ from model.stupid_recognizer import StupidRecognizer
 from model.perceptron import Perceptron
 from model.logistic_regression import LogisticRegression
 from model.mlp import MultilayerPerceptron
+from util.activation_functions import Activation
 
 from report.evaluator import Evaluator
 from report.performance_plot import PerformancePlot
+
+import numpy as np
 
 
 def main():

@@ -64,9 +64,8 @@ class MultilayerPerceptron(Classifier):
         # Build up the network from specific layers
         # Here is an example of a MLP acting like the Logistic Regression
         self.layers = []
-        output_activation = "sigmoid"
         self.layers.append(LogisticLayer(784, 10, None, "sigmoid", True))
-        self.layers.append(LogisticLayer(10, 1, None, "sigmoid", False))
+        self.layers.append(LogisticLayer(10, 2, None, "softmax", False))
 
     def _get_layer(self, layer_index):
         return self.layers[layer_index]
@@ -104,6 +103,8 @@ class MultilayerPerceptron(Classifier):
         ndarray :
             a numpy array (1,nOut) containing the output of the layer
         """
+
+        print("LOLOL", self.layers[-1].outp)
         self.layers[-1].computeDerivative(np.array(target - self.layers[-1].outp), np.array(1.0))
         return self.layers[-1].deltas
 

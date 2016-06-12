@@ -110,9 +110,9 @@ class LogisticLayer():
         # In case of the output layer, next_weights is array of 1
         # and next_derivatives - the derivative of the error will be the errors
         # Please see the call of this method in LogisticRegression.
-        self.deltas = (self.outp *
-                       (1 - self.outp) *
-                       np.dot(next_derivatives, next_weights))
+        # self.deltas = (self.outp *
+        #                (1 - self.outp) *
+        #                np.dot(next_derivatives, next_weights))
 
         # Or more general: output*(1-output) is the derivatives of sigmoid
         # (sigmoid_prime)
@@ -120,8 +120,8 @@ class LogisticLayer():
         #                np.dot(next_derivatives, next_weights))
 
         # Or even more general: doesn't care which activation function is used
-        # self.deltas = (self.activation_derivative(self.outp) *
-        #                np.dot(next_derivatives, next_weights))
+        self.deltas = (self.activation_derivative(self.outp) *
+                       np.dot(next_derivatives, next_weights))
 
         # Or you can explicitly calculate the derivatives for two cases
         # Page 40 Back-propagation slides
@@ -148,4 +148,4 @@ class LogisticLayer():
                                         self.inp)
 
     def _fire(self, inp):
-        return Activation.sigmoid(np.dot(np.array(inp), self.weights))
+        return self.activation(np.dot(np.array(inp), self.weights))
