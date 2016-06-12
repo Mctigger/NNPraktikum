@@ -4,7 +4,8 @@ import numpy as np
 # from util.activation_functions import Activation
 from model.logistic_layer import LogisticLayer
 from model.classifier import Classifier
-
+from util.activation_functions import Activation
+from report.evaluator import Evaluator
 
 class MultilayerPerceptron(Classifier):
     """
@@ -64,7 +65,8 @@ class MultilayerPerceptron(Classifier):
         # Here is an example of a MLP acting like the Logistic Regression
         self.layers = []
         output_activation = "sigmoid"
-        self.layers.append(LogisticLayer(10, 1, None, output_activation, True))
+        self.layers.append(LogisticLayer(784, 10, None, "sigmoid", True))
+        self.layers.append(LogisticLayer(10, 1, None, "sigmoid", False))
 
     def _get_layer(self, layer_index):
         return self.layers[layer_index]
@@ -87,8 +89,11 @@ class MultilayerPerceptron(Classifier):
         # Here you have to propagate forward through the layers
         # And remember the activation values of each layer
         """
+        layer1Out = self.layers[0].forward(inp)
+        layer1Out = np.insert(layer1Out, 0, 1)
+        layer2Out = self.layers[1].forward(layer1Out)
 
-        pass
+        return layer2Out
 
     def _compute_error(self, target):
         """
@@ -99,7 +104,8 @@ class MultilayerPerceptron(Classifier):
         ndarray :
             a numpy array (1,nOut) containing the output of the layer
         """
-        pass
+        self.layers[-1].computeDerivative(np.array(target - self.layers[-1].outp), np.array(1.0))
+        return self.layers[-1].deltas
 
     def _update_weights(self):
         """
@@ -116,7 +122,21 @@ class MultilayerPerceptron(Classifier):
             Print logging messages with validation accuracy if verbose is True.
         """
 
-        pass
+        evaluator = Evaluator()
+
+        for epoch in range(self.epochs):
+            print("Training Epoch", epoch)
+            for i, input, label in zip(range(len(self.training_set.input)), self.training_set.input, self.training_set.label):
+                out = self._feed_forward(input)
+                error = self._compute_error(label).reshape(1, 1)
+                for layer, nextLayer in zip(self.layers[:-1], self.layers[1:]):
+                    weights = nextLayer.weights[1:].T
+                    layer.computeDerivative(error, weights)
+
+                for layer in self.layers:
+                    layer.updateWeights(self.learning_rate)
+
+            evaluator.printAccuracy(self.test_set, self.evaluate())
 
     def _train_one_epoch(self):
         """
@@ -128,7 +148,9 @@ class MultilayerPerceptron(Classifier):
     def classify(self, test_instance):
         # Classify an instance given the model of the classifier
         # You need to implement something here
-        return True
+
+        outp = self._feed_forward(test_instance)
+        return outp > 0.5
 
     def evaluate(self, test=None):
         """Evaluate a whole dataset.

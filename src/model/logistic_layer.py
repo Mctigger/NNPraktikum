@@ -141,9 +141,10 @@ class LogisticLayer():
 
         # Here the implementation of weight updating mechanism
         # Page 40 Back-propagation slides
+        deltas = self.deltas.T
         for neuron in range(0, self.n_out):
             self.weights[:, neuron] += (learning_rate *
-                                        self.deltas[neuron] *
+                                        deltas[neuron] *
                                         self.inp)
 
     def _fire(self, inp):
