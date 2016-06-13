@@ -16,14 +16,14 @@ import numpy as np
 
 
 def main():
-    data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000,
-                      one_hot=True, target_digit='7')
+    #data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000,
+    #                 one_hot=True, target_digit='7')
 
     # NOTE:
     # Comment out the MNISTSeven instantiation above and
     # uncomment the following to work with full MNIST task
-    # data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000,
-    #                   one_hot=False)
+    data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000,
+                      one_hot=False)
 
     # NOTE:
     # Other 1-digit classifiers do not make sense now for comparison purpose
@@ -77,8 +77,8 @@ def main():
     myMLPClassifier = MultilayerPerceptron(data.training_set,
                                            data.validation_set,
                                            data.test_set,
-                                           learning_rate=0.1,
-                                           epochs=30)
+                                           learning_rate=0.05,
+                                           epochs=300)
     print("\nLogistic Regression has been training..")
     myMLPClassifier.train()
     print("Done..")

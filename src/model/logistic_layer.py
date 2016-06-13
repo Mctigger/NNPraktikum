@@ -120,8 +120,17 @@ class LogisticLayer():
         #                np.dot(next_derivatives, next_weights))
 
         # Or even more general: doesn't care which activation function is used
+        #print("shape of next_weights", next_weights.shape)
+        #print("shape of next_derivatives", next_derivatives.shape)
+
         self.deltas = (self.activation_derivative(self.outp) *
                        np.dot(next_derivatives, next_weights))
+
+        #print("nextDerivatives", next_derivatives)
+        #print("nw", next_weights)
+        #print("np.dot", np.dot(next_derivatives, next_weights))
+        #print("activation_derivative", self.activation_derivative(self.outp))
+        #print("deltas", self.deltas)
 
         # Or you can explicitly calculate the derivatives for two cases
         # Page 40 Back-propagation slides

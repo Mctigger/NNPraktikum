@@ -65,7 +65,7 @@ class Activation:
     @staticmethod
     def softmax_prime(outp):
         # Here you have to code the the derivative of softmax function
-        return (1 - Activation.softmax(outp)) * Activation.softmax(outp)
+        return (1 - outp) * outp
 
     @staticmethod
     def get_activation(function_name):
