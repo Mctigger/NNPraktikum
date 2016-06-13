@@ -132,7 +132,7 @@ def main():
     epoch_values = []
 
     for i in itertools.product(range(learning_rate_sample_count)):
-        learning_rate = 10 / np.exp(i)
+        learning_rate = 100 / np.exp(i)
         print("Calculating accuracy for: learning rate = %s" % (learning_rate))
         myMLPClassifier = MultilayerPerceptron(data.training_set,
                                                data.validation_set,
@@ -143,17 +143,19 @@ def main():
         epoch_accuracies = myMLPClassifier.train(False)
         lrPred = myMLPClassifier.evaluate()
         epoch_values.append([e for e in range(epochs_sample_count)])
-        learning_rates.append(learning_rate)
+        learning_rates.append([learning_rate for _ in range(epochs_sample_count)])
         accuracies.append(epoch_accuracies)
 
     accuracies_merged = list(itertools.chain(*accuracies))
     epochs_merged = list(itertools.chain(*epoch_values))
+    learning_rates_merged = list(itertools.chain(*learning_rates))
     print(accuracies_merged)
     print(epochs_merged)
+    print(learning_rates)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(np.log10(learning_rates), epochs_merged, accuracies_merged)
+    ax.scatter(np.log10(learning_rates_merged), epochs_merged, accuracies_merged)
     ax.set_xlabel("Learning Rate")
 
     ax.set_xticks(np.log10(xticks))
