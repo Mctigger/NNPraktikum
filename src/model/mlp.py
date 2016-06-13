@@ -115,6 +115,8 @@ class MultilayerPerceptron(Classifier):
 
         evaluator = Evaluator()
 
+        accuracies = []
+
         for epoch in range(self.epochs):
             print("Training Epoch", epoch)
             for i, input, label in zip(range(len(self.training_set.input)), self.training_set.input, self.training_set.label):
@@ -133,6 +135,10 @@ class MultilayerPerceptron(Classifier):
 
             if verbose:
                 evaluator.printAccuracy(self.test_set, self.evaluate())
+
+            accuracies.append(evaluator.getAccuracy(self.test_set, self.evaluate()))
+
+        return accuracies
 
 
     def classify(self, test_instance):

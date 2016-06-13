@@ -88,7 +88,7 @@ def main():
     myMLPClassifier = MultilayerPerceptron(data.training_set,
                                            data.validation_set,
                                            data.test_set,
-                                           learning_rate=0.1,
+                                           learning_rate=0.5,
                                            epochs=30, layers=layers)
     print("\nLogistic Regression has been training..")
     myMLPClassifier.train()
@@ -124,32 +124,36 @@ def main():
 
     # 3D Plot learning_rates + epochs -> accuracies
     print("Creating 3D plot. This may take some minutes...")
-    learning_rate_sample_count = 10
-    epochs_sample_count = 30
-    xticks = np.logspace(-10.0, 10.0, base=10, num=learning_rate_sample_count, endpoint=False)
+    learning_rate_sample_count = 5
+    epochs_sample_count = 20
+    xticks = np.logspace(-10.0, 0, base=10, num=learning_rate_sample_count, endpoint=False)
     accuracies = []
     learning_rates = []
     epoch_values = []
 
-    for i, e in itertools.product(range(learning_rate_sample_count), range(epochs_sample_count)):
-        learning_rate = 100 / np.exp(i * 2)
-        epochs = e
-        print("Calculating accuracy for: learning rate = %s | epochs = %s" % (learning_rate, epochs))
+    for i in itertools.product(range(learning_rate_sample_count)):
+        learning_rate = 10 / np.exp(i)
+        print("Calculating accuracy for: learning rate = %s" % (learning_rate))
         myMLPClassifier = MultilayerPerceptron(data.training_set,
                                                data.validation_set,
                                                data.test_set,
                                                learning_rate=learning_rate,
-                                               epochs=epochs,
-                                               layers = layers)
-        myMLPClassifier.train(False)
+                                               epochs=epochs_sample_count,
+                                               layers=layers)
+        epoch_accuracies = myMLPClassifier.train(False)
         lrPred = myMLPClassifier.evaluate()
-        epoch_values.append(epochs)
+        epoch_values.append([e for e in range(epochs_sample_count)])
         learning_rates.append(learning_rate)
-        accuracies.append(evaluator.getAccuracy(data.test_set, lrPred))
+        accuracies.append(epoch_accuracies)
+
+    accuracies_merged = list(itertools.chain(*accuracies))
+    epochs_merged = list(itertools.chain(*epoch_values))
+    print(accuracies_merged)
+    print(epochs_merged)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(np.log10(learning_rates), epoch_values, accuracies)
+    ax.scatter(np.log10(learning_rates), epochs_merged, accuracies_merged)
     ax.set_xlabel("Learning Rate")
 
     ax.set_xticks(np.log10(xticks))
