@@ -62,11 +62,6 @@ class MultilayerPerceptron(Classifier):
         #                                             axis=1)
         #self.test_set.input = np.insert(self.test_set.input, 0, 1, axis=1)
 
-        # Build up the network from specific layers
-        # Here is an example of a MLP acting like the Logistic Regression
-        self.layers = []
-        self.layers.append(LogisticLayer(784, 30, None, "sigmoid", True))
-        self.layers.append(LogisticLayer(30, 10, None, "softmax", False))
 
     def _get_layer(self, layer_index):
         return self.layers[layer_index]
@@ -136,7 +131,8 @@ class MultilayerPerceptron(Classifier):
                 for layer in self.layers:
                     layer.updateWeights(self.learning_rate)
 
-            evaluator.printAccuracy(self.test_set, self.evaluate())
+            if verbose:
+                evaluator.printAccuracy(self.test_set, self.evaluate())
 
 
     def classify(self, test_instance):

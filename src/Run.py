@@ -8,12 +8,17 @@ from model.perceptron import Perceptron
 from model.logistic_regression import LogisticRegression
 from model.mlp import MultilayerPerceptron
 from util.activation_functions import Activation
+from model.logistic_layer import LogisticLayer
 
 from report.evaluator import Evaluator
 from report.performance_plot import PerformancePlot
 
-import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import axes3d
 
+import numpy as np
+import itertools
 
 def main():
     #data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000,
@@ -25,14 +30,14 @@ def main():
     data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000,
                       one_hot=False)
 
-    # NOTE:
-    # Other 1-digit classifiers do not make sense now for comparison purpose
-    # So you should comment them out, let alone the MLP training and evaluation
-
-    # Train the classifiers #
-    print("=========================")
-    print("Training..")
-
+    # # NOTE:
+    # # Other 1-digit classifiers do not make sense now for comparison purpose
+    # # So you should comment them out, let alone the MLP training and evaluation
+    #
+    # # Train the classifiers #
+    # print("=========================")
+    # print("Training..")
+    #
     # # Stupid Classifier
     # myStupidClassifier = StupidRecognizer(data.training_set,
     #                                       data.validation_set,
@@ -73,12 +78,18 @@ def main():
     # # Explicitly specify the test set to be evaluated
     # lrPred = myLRClassifier.evaluate()
 
-    # Logistic Regression
+
+    # Build up the network from specific layers
+    # Here is an example of a MLP acting like the Logistic Regression
+    layers = []
+    layers.append(LogisticLayer(784, 5, None, "sigmoid", True))
+    layers.append(LogisticLayer(5, 10, None, "softmax", False))
+
     myMLPClassifier = MultilayerPerceptron(data.training_set,
                                            data.validation_set,
                                            data.test_set,
-                                           learning_rate=0.05,
-                                           epochs=300)
+                                           learning_rate=0.1,
+                                           epochs=30, layers=layers)
     print("\nLogistic Regression has been training..")
     myMLPClassifier.train()
     print("Done..")
@@ -90,15 +101,15 @@ def main():
     print("=========================")
     evaluator = Evaluator()
     #
-    # print("Result of the stupid recognizer:")
+    # # print("Result of the stupid recognizer:")
     # # evaluator.printComparison(data.testSet, stupidPred)
     # evaluator.printAccuracy(data.test_set, stupidPred)
-    #
-    # print("\nResult of the Perceptron recognizer (on test set):")
+    # #
+    # # print("\nResult of the Perceptron recognizer (on test set):")
     # # evaluator.printComparison(data.testSet, perceptronPred)
     # evaluator.printAccuracy(data.test_set, perceptronPred)
-    #
-    # print("\nResult of the Logistic Regression recognizer (on test set):")
+    # #
+    # # print("\nResult of the Logistic Regression recognizer (on test set):")
     # # evaluator.printComparison(data.testSet, perceptronPred)
     # evaluator.printAccuracy(data.test_set, lrPred)
     #
@@ -110,6 +121,42 @@ def main():
     # plot = PerformancePlot("Logistic Regression")
     # plot.draw_performance_epoch(myLRClassifier.performances,
     #                             myLRClassifier.epochs)
+
+    # 3D Plot learning_rates + epochs -> accuracies
+    print("Creating 3D plot. This may take some minutes...")
+    learning_rate_sample_count = 10
+    epochs_sample_count = 30
+    xticks = np.logspace(-10.0, 10.0, base=10, num=learning_rate_sample_count, endpoint=False)
+    accuracies = []
+    learning_rates = []
+    epoch_values = []
+
+    for i, e in itertools.product(range(learning_rate_sample_count), range(epochs_sample_count)):
+        learning_rate = 100 / np.exp(i * 2)
+        epochs = e
+        print("Calculating accuracy for: learning rate = %s | epochs = %s" % (learning_rate, epochs))
+        myMLPClassifier = MultilayerPerceptron(data.training_set,
+                                               data.validation_set,
+                                               data.test_set,
+                                               learning_rate=learning_rate,
+                                               epochs=epochs,
+                                               layers = layers)
+        myMLPClassifier.train(False)
+        lrPred = myMLPClassifier.evaluate()
+        epoch_values.append(epochs)
+        learning_rates.append(learning_rate)
+        accuracies.append(evaluator.getAccuracy(data.test_set, lrPred))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(np.log10(learning_rates), epoch_values, accuracies)
+    ax.set_xlabel("Learning Rate")
+
+    ax.set_xticks(np.log10(xticks))
+    ax.set_xticklabels(xticks)
+    ax.set_ylabel('Epochs')
+    ax.set_zlabel('Accuracy')
+    plt.show()
 
 if __name__ == '__main__':
     main()
